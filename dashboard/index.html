@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Self-Pruning Network Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="background-elements">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <header class="glass-panel">
+        <div class="header-content">
+            <div class="title-section">
+                <h1>Self-Pruning Network Monitor</h1>
+                <p>Real-time Training & Sparsity Dashboard</p>
+            </div>
+            <div class="controls">
+                <label for="lambdaSelect">Select Lambda (λ):</label>
+                <select id="lambdaSelect" class="styled-select">
+                    <option value="" disabled selected>Loading...</option>
+                </select>
+                <button id="refreshBtn" class="btn-primary">Auto-Refresh: ON</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="dashboard-grid">
+        <!-- Classification Loss Curve -->
+        <section class="glass-panel chart-container">
+            <h2>Classification Loss</h2>
+            <div class="chart-wrapper">
+                <canvas id="lossChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Accuracy & Sparsity Curve -->
+        <section class="glass-panel chart-container">
+            <h2>Validation Accuracy & Network Sparsity</h2>
+            <div class="chart-wrapper">
+                <canvas id="accSparsityChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Layer-wise Sparsity -->
+        <section class="glass-panel chart-container">
+            <h2>Layer-wise Sparsity (Final/Current Epoch)</h2>
+            <div class="chart-wrapper">
+                <canvas id="layerSparsityChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Final Gate Distribution Image -->
+        <section class="glass-panel chart-container">
+            <h2>Final Gate Distribution</h2>
+            <div class="image-wrapper">
+                <img id="gateDistImg" src="../results/gate_distribution.png" alt="Gate Distribution (Available after training completes)" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="image-placeholder">Waiting for training completion...</div>
+            </div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>

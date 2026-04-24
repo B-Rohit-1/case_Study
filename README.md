@@ -25,7 +25,7 @@ SparsityLoss = mean(sigmoid(gate_scores))
 - **`λ` (lambda)** controls the sparsity-accuracy trade-off.
 - The **L1 norm** on gate values encourages exact zeros (unlike L2 which only shrinks).
 - **Normalization by mean** keeps the loss scale stable across model sizes.
-- *Note: The sparsity loss gradients are internally scaled by a balancing constant (5000) during backpropagation to prevent them from vanishing due to the mean normalization, allowing the Adam optimizer to effectively close gates.*
+- *Note: To ensure the network achieves high sparsity quickly, the `gate_scores` are optimized with a significantly higher learning rate (0.05) than the standard weights (0.001), while their gradients are mathematically scaled during backpropagation to overcome the mean normalization.*
 
 ## Project Structure
 ```text

@@ -125,17 +125,25 @@ def train_one_epoch(model, train_loader, optimizer, criterion, lambda_reg, devic
         cls_loss = criterion(outputs, labels)
         sp_loss = model.network_sparsity_loss()
         
-        # Check for NaN/Inf anomalies
-        
-        # Multiply sparsity loss by a balancing factor (250) so the gradients aren't 
-        # completely vanishing due to the N_gates normalization.
-        total_loss = cls_loss + (lambda_reg * 250) * sp_loss
+        total_loss = cls_loss + lambda_reg * sp_loss
         
         if not torch.isfinite(total_loss):
             print("WARNING: non-finite loss, ending epoch early")
             break
             
         total_loss.backward()
+        
+        # --- SPARSITY GRADIENT FIX ---
+        # Because the sparsity loss is normalized by 1.7 million gates, its gradient is 
+        # microscopic (~1e-7). The Adam optimizer normalizes updates based entirely on sign, 
+        # meaning the CrossEntropy gradient (~5e-6) completely overpowers it and the gates 
+        # never close. We manually scale the gate gradients by a balancing factor of 5000 
+        # so that lambda actually controls the pruning pressure!
+        with torch.no_grad():
+            for layer in model.get_all_prunable_layers():
+                if layer.gate_scores.grad is not None:
+                    layer.gate_scores.grad *= 5000
+        # -----------------------------
         
         # Gradient Clipping
         torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)

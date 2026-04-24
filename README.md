@@ -19,13 +19,13 @@ output        = F.linear(x, pruned_weight, bias)  # standard linear op
 
 ### The Loss Function
 ```text
-Total Loss = CrossEntropyLoss + (λ × 250) × SparsityLoss 
+Total Loss = CrossEntropyLoss + λ × SparsityLoss 
 SparsityLoss = mean(sigmoid(gate_scores))
 ```
 - **`λ` (lambda)** controls the sparsity-accuracy trade-off.
 - The **L1 norm** on gate values encourages exact zeros (unlike L2 which only shrinks).
 - **Normalization by mean** keeps the loss scale stable across model sizes.
-- *Note: The sparsity loss is internally multiplied by a balancing constant (250) to prevent the gradients from vanishing due to the mean normalization, allowing the Adam optimizer to effectively close gates against the Cross-Entropy gradients.*
+- *Note: The sparsity loss gradients are internally scaled by a balancing constant (5000) during backpropagation to prevent them from vanishing due to the mean normalization, allowing the Adam optimizer to effectively close gates.*
 
 ## Project Structure
 ```text

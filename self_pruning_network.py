@@ -125,9 +125,12 @@ def train_one_epoch(model, train_loader, optimizer, criterion, lambda_reg, devic
         cls_loss = criterion(outputs, labels)
         sp_loss = model.network_sparsity_loss()
         
-        total_loss = cls_loss + lambda_reg * sp_loss
-        
         # Check for NaN/Inf anomalies
+        
+        # Multiply sparsity loss by a balancing factor (250) so the gradients aren't 
+        # completely vanishing due to the N_gates normalization.
+        total_loss = cls_loss + (lambda_reg * 250) * sp_loss
+        
         if not torch.isfinite(total_loss):
             print("WARNING: non-finite loss, ending epoch early")
             break

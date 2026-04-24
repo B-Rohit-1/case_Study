@@ -285,9 +285,9 @@ def main():
             print(f"Epoch [{epoch+1:02d}/{num_epochs}] "
                   f"TrLoss: {t_loss:.4f} | ValAcc: {v_acc:.2f}% | Sparsity: {v_sp:.2f}%")
             
-            # Save metrics live
-            with open('./results/metrics.json', 'w') as f:
-                json.dump(metrics_log, f)
+            # Save metrics live to JS file to bypass browser CORS
+            with open('./results/metrics.js', 'w') as f:
+                f.write(f"window.globalMetricsData = {json.dumps(metrics_log)};")
                 
         # Final test evaluation
         test_loss, test_acc, test_sp, _, gate_values = evaluate(model, test_loader, criterion, lam, device)

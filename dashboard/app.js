@@ -23,22 +23,22 @@ const colors = {
     grid: 'rgba(255, 255, 255, 0.05)'
 };
 
-async function fetchMetrics() {
-    try {
-        // Appending timestamp to prevent browser caching
-        const response = await fetch(`../results/metrics.json?t=${new Date().getTime()}`);
-        if (!response.ok) throw new Error('Metrics file not found');
-        const data = await response.json();
-        
-        globalMetrics = data;
-        updateLambdaDropdown();
-        
-        if (currentLambda && globalMetrics[currentLambda]) {
-            updateCharts();
+function fetchMetrics() {
+    const script = document.createElement('script');
+    script.src = `../results/metrics.js?t=${new Date().getTime()}`;
+    script.onload = () => {
+        if (window.globalMetricsData) {
+            globalMetrics = window.globalMetricsData;
+            updateLambdaDropdown();
+            if (currentLambda && globalMetrics[currentLambda]) {
+                updateCharts();
+            }
         }
-    } catch (error) {
-        console.log("Waiting for metrics.json to be generated...", error.message);
-    }
+    };
+    script.onerror = () => {
+        console.log("Waiting for metrics.js to be generated...");
+    };
+    document.head.appendChild(script);
 }
 
 function updateLambdaDropdown() {

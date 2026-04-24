@@ -271,7 +271,21 @@ def main():
         print(f"\n{'='*40}\nTraining with lambda = {lam}\n{'='*40}")
         model = SelfPruningNetwork().to(device)
         criterion = nn.CrossEntropyLoss()
-        optimizer = optim.Adam(model.parameters(), lr=0.001)
+        # Separate parameters so gates can learn faster than weights
+        weight_params = []
+        gate_params = []
+        for name, param in model.named_parameters():
+            if 'gate_scores' in name:
+                gate_params.append(param)
+            else:
+                weight_params.append(param)
+                
+        # Gates need a higher LR (0.05) to physically travel the required distance 
+        # (-1.0 to -4.59) within a reasonable number of epochs.
+        optimizer = optim.Adam([
+            {'params': weight_params, 'lr': 0.001},
+            {'params': gate_params, 'lr': 0.05}
+        ])
         scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=num_epochs)
         
         metrics_log[str(lam)] = {
